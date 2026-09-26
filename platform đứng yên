@@ -1,0 +1,72 @@
+import pygame
+import sys
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Platform + Camera")
+clock = pygame.time.Clock()
+player = pygame.Rect(100, 300, 50, 50)
+speed = 5
+velocity_y = 0
+gravity = 0.6
+jump = -12
+on_ground = False
+platforms = [
+    pygame.Rect(0, 550, 800, 50),
+    pygame.Rect(200, 450, 150, 20),
+    pygame.Rect(450, 350, 150, 20),
+]
+camera_x = 0
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and on_ground:
+                velocity_y = jump
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        player.x -= speed
+    if keys[pygame.K_RIGHT]:
+        player.x += speed
+    velocity_y += gravity
+    player.y += velocity_y
+    on_ground = False
+    for platform in platforms:
+        if player.colliderect(platform):
+            if velocity_y > 0:
+                player.bottom = platform.top
+                velocity_y = 0
+                on_ground = True
+            elif velocity_y < 0:
+                player.top = platform.bottom
+                velocity_y = 0
+    camera_x = player.x - 300
+    if camera_x < 0:
+        camera_x = 0
+    screen.fill((135, 206, 235))
+    for platform in platforms:
+        pygame.draw.rect(
+            screen,
+            (100, 100, 100),
+            (
+                platform.x - camera_x,
+                platform.y,
+                platform.width,
+                platform.height
+            )
+        )
+    pygame.draw.rect(
+        screen,
+        (200, 100, 200),
+        (
+            player.x - camera_x,
+            player.y,
+            player.width,
+            player.height
+        )
+    )
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+sys.exit()
