@@ -1,0 +1,65 @@
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((800,600))
+pygame.display.set_caption("hello")
+running = True
+clock = pygame.time.Clock()
+player = pygame.Rect(100,300,50,50)
+platforms = [
+    pygame.Rect(0, 550, 800, 50),
+    pygame.Rect(150, 450, 150, 20),
+    pygame.Rect(400, 350, 150, 20),
+    pygame.Rect(650, 250, 150, 20)
+]
+speed_y = 0
+y = 0.6
+speed = 5
+jump = -12
+on_ground = False
+screen_x = 0
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and on_ground:
+                speed_y = jump
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_RIGHT]:
+        player.x+=speed
+    if keys[pygame.K_LEFT]:
+        player.x-=speed
+    on_ground = False
+    speed_y+=y
+    player.y+=speed_y
+    for platform in platforms:
+        if player.colliderect(platform):
+            if speed_y > 0:
+                player.bottom = platform.top
+                speed_y = 0
+                on_ground = True
+    screen_x = player.x-300
+    screen.fill((100, 200, 250))
+    for platform in platforms:
+        pygame.draw.rect(
+        screen,
+        (100,200,100),
+            (platform.x - screen_x,
+        platform.y,
+        platform.width,
+        platform.height
+        )
+    )
+    pygame.draw.rect(
+        screen,
+        (200, 100, 50),
+        (
+            player.x - screen_x,
+            player.y,
+            player.width,
+            player.height
+        )
+    )
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
