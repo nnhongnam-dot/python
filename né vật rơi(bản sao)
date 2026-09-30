@@ -1,0 +1,67 @@
+import pygame
+import random
+import sys
+pygame.init()
+WIDTH, HEIGHT = 600, 700
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Ne bom roi")
+clock = pygame.time.Clock()
+class Player:
+    def __init__(self):
+        self.x = 275
+        self.y = 600
+        self.width = 30
+        self.height = 30
+        self.speed = 7
+    def move(self, keys):
+        if keys[pygame.K_LEFT]:
+            self.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.x += self.speed
+        if keys[pygame.K_UP]:
+            self.y -= self.speed
+        if keys[pygame.K_DOWN]:
+            self.y += self.speed
+        self.x = max(0, min(self.x, WIDTH-self.width))
+        self.y = max(0, min(self.y, HEIGHT - self.height))
+    def draw(self):
+        pygame.draw.rect(screen,(0,255,0),(self.x,self.y,self.width,self.height))
+class Bomb:
+    def __init__(self):
+        self.width = 20
+        self.height = 20
+        self.reset()
+    def reset(self):
+        self.x = random.randint(0, WIDTH-self.width)
+        self.y = random.randint(0-HEIGHT,-50)
+        self.speed = random.randint(3,7)
+    def move(self):
+        self.y += self.speed
+        if self.y > HEIGHT:
+            self.reset()
+    def draw(self):
+        pygame.draw.rect(screen,(200,0,0),(self.x,self.y,self.width,self.height))
+player = Player()
+bombs = [Bomb() for i in range(50)]
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    keys = pygame.key.get_pressed()
+    player.move(keys)
+    player_rect = pygame.Rect(player.x,player.y,player.width,player.height)
+    for bomb in bombs:
+        bomb.move()
+        bomb_rect = pygame.Rect(bomb.x,bomb.y,bomb.width,bomb.height)
+        if player_rect.colliderect(bomb_rect):
+            print("GAME OVER")
+            running = False
+    screen.fill((100,180,255))
+    player.draw()
+    for bomb in bombs:
+        bomb.draw()
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+sys.exit()
